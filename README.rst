@@ -1,50 +1,66 @@
-=======================
-python-package-template
-=======================
-This is a template repository that can be used to quickly create a python package project.
+=====================================
+Automation Mojo RestClient - Twingate
+=====================================
 
-=========================
-Features of this Template
-=========================
-* Machine Setup
-* Virtual Environment Setup (Poetry)
-* PyPi Publishing
+The ``automojo-restclient-twingate`` package is a typed, aspect-driven client for the Twingate Admin API. Despite the ``restclient-`` prefix, the upstream API is **GraphQL**, not REST — Twingate publishes a single GraphQL endpoint at ``https://<your-network>.twingate.com/api/graphql/v1``. The package consumes ``automojo-restclient-base`` for HTTP transport (POST, session management, auth header plumbing, aspects-driven retry/timeout) and layers GraphQL query and mutation construction on top.
 
-========================
-How to Use This Template
-========================
-- Click the 'Use this template' button
-- Fill in the information to create your repository
-- Checkout your new repository
-- Change the following in 'repository-config.ini'
+The status of this package is **scaffold and specs**. The implementation lands in Milestone M3b of the VPN/cloud-provisioning plan. See the ``specs/`` folder for the Kiro-style requirements, design, and task documentation that drives that work.
 
-  #. 'PROJECT NAME'
-  #. 'REPOSITORY_NAME'
+Highlights (planned)
+====================
 
-- If you have machine dependencies to add, put them in 'setup-ubuntu-machine'
-- Modify the pyproject.toml file with the correct package-name, author, publishing information, etc.
-- Rename the VSCODE workspace file 'mv workspaces/default-workspace.template workspaces/(project name).template'
-- Replace the README.rst file with your own README
-- Update the LICENSE.txt file with your copyright information and license.
-- Add your dependencies with python poetry 'poetry add (dependency name)'
-- Drop your package code in 'source/packages'
-- Modify the name of your package root in 'pyproject.toml'
+- ``TwingateClient(RestClientBase)`` exposing api groups for ``resources``, ``groups``, ``connectors``, ``remote_networks``, and ``devices``.
+- ``IVPNControlPlane`` Protocol conformance via an idempotent three-phase RBAC apply (``apply_acl`` translates Tailscale-shaped flat-ACL JSON into Twingate's resource × group × assignment surface).
+- GraphQL schema obtained via standard introspection (Twingate publishes no OpenAPI). The introspection result drives typed query and mutation builders under ``queries/``, ``mutations/``, ``inputs/``, and DTOs under ``model/``.
+- Bearer auth from ``TwingateServiceAccountCredential``; endpoint URL derived from the credential's network slug.
+- Connector-name → connector-id resolution for ``mint_authkey`` so callers can pass tag-shaped inputs and have them work against Twingate's id-keyed surface.
+- Replaces the M3-landed ``automojo-interop/vpn/twingate/twingatecontrolplane.py``, which becomes a re-export shim for one release cycle after this package ships.
 
-  #. 'packages = [{include="(root folder name)", from="source/packages"}]'
+Repository Structure
+====================
 
+- ``development/`` - Runtime environment scripts.
+- ``repository-setup/`` - Repository homing and setup scripts.
+- ``source/packages/automojo/restclient/twingate/`` - Package source code (lands in M3b).
+- ``source/testroots/testbase/automojo/tests/restclient/twingate/`` - TestBase test roots (lands in M3b).
+- ``specs/`` - Requirements, design, and task documentation (Kiro-style).
+- ``userguide/`` - Standards, conventions, and documentation.
+
+Environment Setup
 =================
-Code Organization
-=================
-* .vscode - Common tasks
-* development - This is where the runtime environment scripts are located
-* repository-setup - Scripts for homing your repository and to your checkout and machine setup
-* userguide - Where you put your user guide
-* source/packages - Put your root folder here 'source/packages/(root-module-folder)'
-* workspaces - This is where you add VSCode workspaces templates and where workspaces show up when homed.
 
-==========
-References
-==========
+When working in a Codex container:
 
-- `User Guide <userguide/userguide.rst>`
-- `Coding Standards <userguide/10-00-coding-standards.rst>`
+.. code-block:: bash
+
+   ./development/setup-agent-container
+
+For local development:
+
+.. code-block:: bash
+
+   ./repository-setup/rehome-repository
+   ./development/setup-environment
+
+Running Tests
+=============
+
+Tests land in Milestone M3b. Once source code is in place:
+
+.. code-block:: bash
+
+   source .venv/bin/activate
+   PYTHONPATH=source/packages:source/testroots/testbase python -m pytest source/testroots -q
+
+Standards and Conventions
+=========================
+
+- Naming conventions: ``userguide/10-02-naming-conventions.rst``
+- Code organization: ``userguide/10-01-code-organization.rst``
+- Coding standards: ``userguide/10-00-coding-standards.rst``
+
+Additional Resources
+====================
+
+- User guide entry point: ``userguide/userguide.rst``
+- Codegen decision rule: workspace ``PLAN-VPN-AND-CLOUD-PROVISIONING.md`` §9.2a
