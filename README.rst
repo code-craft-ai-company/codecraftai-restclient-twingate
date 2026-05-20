@@ -4,17 +4,29 @@ Automation Mojo RestClient - Twingate
 
 The ``automojo-restclient-twingate`` package is a typed, aspect-driven client for the Twingate Admin API. Despite the ``restclient-`` prefix, the upstream API is **GraphQL**, not REST — Twingate publishes a single GraphQL endpoint at ``https://<your-network>.twingate.com/api/graphql/v1``. The package consumes ``automojo-restclient-base`` for HTTP transport (POST, session management, auth header plumbing, aspects-driven retry/timeout) and layers GraphQL query and mutation construction on top.
 
-The status of this package is **scaffold and specs**. The implementation lands in Milestone M3b of the VPN/cloud-provisioning plan. See the ``specs/`` folder for the Kiro-style requirements, design, and task documentation that drives that work.
+The package is implemented as of Milestone M3b of the VPN/cloud-provisioning plan. See the ``specs/`` folder for the Kiro-style requirements, design, and task documentation that drives that work.
 
-Highlights (planned)
-====================
+Highlights
+==========
 
 - ``TwingateClient(RestClientBase)`` exposing api groups for ``resources``, ``groups``, ``connectors``, ``remote_networks``, and ``devices``.
 - ``IVPNControlPlane`` Protocol conformance via an idempotent three-phase RBAC apply (``apply_acl`` translates Tailscale-shaped flat-ACL JSON into Twingate's resource × group × assignment surface).
-- GraphQL schema obtained via standard introspection (Twingate publishes no OpenAPI). The introspection result drives typed query and mutation builders under ``queries/``, ``mutations/``, ``inputs/``, and DTOs under ``model/``.
+- Typed query and mutation builders under ``queries/`` and ``mutations/``, INPUT_OBJECT types under ``inputs/``, and ``SchemaObject`` DTOs under ``model/``.
 - Bearer auth from ``TwingateServiceAccountCredential``; endpoint URL derived from the credential's network slug.
 - Connector-name → connector-id resolution for ``mint_authkey`` so callers can pass tag-shaped inputs and have them work against Twingate's id-keyed surface.
 - Replaces the M3-landed ``automojo-interop/vpn/twingate/twingatecontrolplane.py``, which becomes a re-export shim for one release cycle after this package ships.
+
+Schema Regeneration
+===================
+
+The typed builders and DTOs are **hand-authored** from the documented Twingate GraphQL surface — see the "Codegen Decision" section of ``AGENTS.md``. A maintainer with a live Twingate network can re-sync the checked-in schema snapshot:
+
+.. code-block:: bash
+
+   python -m automojo.restclient.twingate._codegen.import_schema \
+       --network <slug> --token <api-token>
+
+This rewrites ``source/packages/automojo/restclient/twingate/_spec/schema.json`` and ``_spec/schema.sha256``. The emitter in ``_codegen/emitter.py`` can then validate or extend the hand-authored ``model/`` / ``inputs/`` modules. On a non-200 response or GraphQL ``errors`` the importer raises ``ConfigurationError`` and leaves the checked-in schema untouched.
 
 Repository Structure
 ====================

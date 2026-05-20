@@ -19,6 +19,38 @@ reusability and scalability over quick fixes and fast delivery.
 - Avoid using relative imports
 - Always prioritize the reuse of code from 'automojo-*' packages over rewriting functionality
 
+# Codegen Decision
+**This package does not perform GraphQL-introspection-driven code generation at
+build time.** The `twingate-schema-import` spec describes obtaining the Twingate
+GraphQL schema via standard introspection against a live Twingate network. Live
+introspection requires both network reachability and a valid Twingate API token,
+neither of which was available at package-authoring time.
+
+Per the §9.2a decision rule in `PLAN-VPN-AND-CLOUD-PROVISIONING.md` ("you cannot
+do live introspection, so hand-author"), the typed DTOs and enums under `model/`,
+the INPUT_OBJECT types under `inputs/`, the query builders under `queries/`, and
+the mutation builders under `mutations/` are all **hand-authored** from the
+documented Twingate GraphQL surface. The shape is proven by the M3-landed
+`automojo-interop/vpn/twingate/twingatecontrolplane.py` control plane (its
+working `apigroups/` and `model/` modules), which this package lifts and brings
+to release quality.
+
+The introspection machinery is still present and is the sanctioned mechanical
+re-sync path: `_codegen/import_schema.py` runs the introspection query and writes
+`_spec/schema.json` + `_spec/schema.sha256`; `_codegen/emitter.py` walks an
+introspection payload and emits `SchemaObject` / `enum.Enum` source. A future
+maintainer with a live Twingate network can run:
+
+```
+python -m automojo.restclient.twingate._codegen.import_schema \
+    --network <slug> --token <api-token>
+```
+
+to validate and extend the hand-authored modules against the authoritative
+schema. The `_spec/schema.json` checked in today is a representative
+hand-authored snapshot (see `_spec/README.md`), not a full live dump. Do not
+re-introduce build-time codegen without first revisiting the §9.2a rule.
+
 # Project Overview
 The `automojo-restclient-twingate` package is a typed, aspect-driven client for the
 Twingate Admin API. Despite the `restclient-` prefix, the upstream API is
