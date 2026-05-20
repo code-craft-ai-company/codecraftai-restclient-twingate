@@ -81,18 +81,22 @@ class FakeSession:
         prepared request for later assertions.
     """
 
-    def __init__(self, *, scripted_payloads: List[Any]):
+    def __init__(self, *, scripted_payloads: List[Any],
+                 status_code: int = 200):
         """
             Initialize the fake session.
 
             :param scripted_payloads: Ordered list of GraphQL response
                 payloads. Each :meth:`send` call consumes one.
+            :param status_code: The HTTP status code every response should
+                report. Defaults to ``200``.
 
             :returns: ``None``.
         """
         self.verify = True
         self.headers: Dict[str, str] = {}
         self._scripted = list(scripted_payloads)
+        self._status_code = status_code
         self.sent_requests: List[Any] = []
         self.sent_bodies: List[Dict[str, Any]] = []
         return
@@ -130,20 +134,24 @@ class FakeSession:
         else:
             payload = self._scripted.pop(0)
 
-        rtnval = FakeResponse(status_code=200, payload=payload)
+        rtnval = FakeResponse(status_code=self._status_code, payload=payload)
         return rtnval
 
 
-def make_client(*, scripted_payloads: List[Any]) -> TwingateClient:
+def make_client(*, scripted_payloads: List[Any],
+                status_code: int = 200) -> TwingateClient:
     """
         Build a :class:`TwingateClient` whose session is a scripted
         :class:`FakeSession`.
 
         :param scripted_payloads: Ordered GraphQL response payloads.
+        :param status_code: The HTTP status code every scripted response
+            should report. Defaults to ``200``.
 
         :returns: A :class:`TwingateClient` ready for offline testing.
     """
     client = TwingateClient(credential=make_credential())
-    client._session = FakeSession(scripted_payloads=scripted_payloads)
+    client._session = FakeSession(scripted_payloads=scripted_payloads,
+                                  status_code=status_code)
     rtnval = client
     return rtnval

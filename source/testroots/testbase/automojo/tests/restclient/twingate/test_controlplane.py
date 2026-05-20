@@ -99,6 +99,28 @@ class TestMintAuthkey(unittest.TestCase):
         self.assertEqual(len(client._session.sent_bodies), 0)
         return
 
+    def test_reusable_true_raises_semantic_error(self) -> None:
+        # Twingate connector tokens have no per-token reusable semantics;
+        # reusable=True must be rejected BEFORE any network call.
+        client = make_client(scripted_payloads=[])
+        with self.assertRaises(SemanticError):
+            client.mint_authkey(
+                reusable=True, ephemeral=False, tags=["edge"],
+                ttl_seconds=3600, aspects=no_pause_aspects())
+        self.assertEqual(len(client._session.sent_bodies), 0)
+        return
+
+    def test_ephemeral_true_raises_semantic_error(self) -> None:
+        # Twingate connector tokens have no per-token ephemeral semantics;
+        # ephemeral=True must be rejected BEFORE any network call.
+        client = make_client(scripted_payloads=[])
+        with self.assertRaises(SemanticError):
+            client.mint_authkey(
+                reusable=False, ephemeral=True, tags=["edge"],
+                ttl_seconds=3600, aspects=no_pause_aspects())
+        self.assertEqual(len(client._session.sent_bodies), 0)
+        return
+
 
 class TestListDevices(unittest.TestCase):
 

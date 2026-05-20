@@ -16,6 +16,10 @@ from automojo.interfaces.ivpncontrolplane import IVPNControlPlane
 from automojo.restclient.twingate.twingateclient import (
     TwingateClient, GRAPHQL_LEAF
 )
+from automojo.restclient.twingate.exceptions import (
+    TwingateApiError, TwingateAuthError, TwingateNotFoundError,
+    TwingateRateLimitError, TwingateServerError
+)
 from automojo.restclient.twingate.model import (
     TwingateResource, TwingateGroup, TwingateConnector,
     TwingateRemoteNetwork, TwingateDevice
@@ -401,6 +405,62 @@ class TestDevicesGroup(unittest.TestCase):
         client = make_client(scripted_payloads=[payload])
         client.devices.delete(
             device_id="GONE", aspects=no_pause_aspects())
+        return
+
+
+class TestHttpStatusReclassification(unittest.TestCase):
+    """
+        Verifies that ``graphql_call`` reclassifies a non-2xx HTTP response
+        into the typed :class:`TwingateApiError` hierarchy, preserving the
+        status code and response body.
+    """
+
+    def test_403_raises_auth_error(self) -> None:
+        client = make_client(
+            scripted_payloads=[{"errors": [{"message": "forbidden"}]}],
+            status_code=403)
+        with self.assertRaises(TwingateAuthError) as ctx:
+            client.connectors.list(aspects=no_pause_aspects())
+        self.assertEqual(ctx.exception.status_code, 403)
+        self.assertIn("forbidden", ctx.exception.response_body)
+        self.assertIsInstance(ctx.exception, TwingateApiError)
+        return
+
+    def test_401_raises_auth_error(self) -> None:
+        client = make_client(
+            scripted_payloads=[{"errors": [{"message": "unauthorized"}]}],
+            status_code=401)
+        with self.assertRaises(TwingateAuthError) as ctx:
+            client.connectors.list(aspects=no_pause_aspects())
+        self.assertEqual(ctx.exception.status_code, 401)
+        return
+
+    def test_404_raises_not_found_error(self) -> None:
+        client = make_client(
+            scripted_payloads=[{"errors": [{"message": "missing"}]}],
+            status_code=404)
+        with self.assertRaises(TwingateNotFoundError) as ctx:
+            client.connectors.list(aspects=no_pause_aspects())
+        self.assertEqual(ctx.exception.status_code, 404)
+        return
+
+    def test_429_raises_rate_limit_error(self) -> None:
+        client = make_client(
+            scripted_payloads=[{"errors": [{"message": "slow down"}]}],
+            status_code=429)
+        with self.assertRaises(TwingateRateLimitError) as ctx:
+            client.connectors.list(aspects=no_pause_aspects())
+        self.assertEqual(ctx.exception.status_code, 429)
+        return
+
+    def test_500_raises_server_error(self) -> None:
+        client = make_client(
+            scripted_payloads=[{"errors": [{"message": "boom"}]}],
+            status_code=500)
+        with self.assertRaises(TwingateServerError) as ctx:
+            client.connectors.list(aspects=no_pause_aspects())
+        self.assertEqual(ctx.exception.status_code, 500)
+        self.assertIn("boom", ctx.exception.response_body)
         return
 
 
