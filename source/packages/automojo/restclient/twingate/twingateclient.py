@@ -17,7 +17,6 @@ import json
 import logging
 import os
 
-from http import HTTPStatus
 from typing import Any, Dict, List, Optional
 
 from requests import Response, Session
@@ -50,8 +49,8 @@ from automojo.restclient.twingate.acltranslator.executor import (
     execute_apply_plan
 )
 from automojo.restclient.twingate.exceptions import (
-    VPNControlPlaneACLError, VPNControlPlaneAuthKeyError,
-    VPNControlPlaneQueryError
+    classify_http_status, VPNControlPlaneACLError,
+    VPNControlPlaneAuthKeyError, VPNControlPlaneQueryError
 )
 from automojo.restclient.twingate.graphqlrequestbody import GraphQLRequestBody
 from automojo.restclient.twingate.mutations.build_resourceaccess_mutations import (
@@ -75,9 +74,9 @@ class TwingateClient(RestClientBase):
           method treats ``tags[0]`` as a connector NAME, resolves it to a
           connector ID, then issues ``connectorGenerateTokens``. Twingate
           connector tokens are neither reusable nor ephemeral and have a
-          provider-fixed lifetime, so ``reusable``, ``ephemeral`` and
-          ``ttl_seconds`` are NOT honoured — supplying more than one tag is
-          rejected with :class:`SemanticError`.
+          provider-fixed lifetime, so ``reusable=True``, ``ephemeral=True``,
+          or supplying more than one tag is rejected with
+          :class:`SemanticError`; ``ttl_seconds`` is NOT honoured.
         - ``apply_acl`` — Twingate has NO flat-ACL primitive. The method is
           a translation, not a faithful representation: it parses a
           Tailscale-shaped flat-ACL document and converges the network to
@@ -228,6 +227,11 @@ class TwingateClient(RestClientBase):
 
             :returns: The decoded GraphQL response payload as a dictionary.
 
+            :raises: :class:`TwingateApiError` (or one of its subclasses
+                :class:`TwingateAuthError`, :class:`TwingateNotFoundError`,
+                :class:`TwingateRateLimitError`,
+                :class:`TwingateServerError`) when the API returns a non-2xx
+                HTTP response.
             :raises: :class:`VPNControlPlaneQueryError` when the response
                 body is not valid JSON.
         """
@@ -239,16 +243,32 @@ class TwingateClient(RestClientBase):
             operation_name = "<unspecified>"
         context_msg = f"twingate-graphql:{operation_name}"
 
+        # Accept every status so transport does not raise an untyped HTTP
+        # error. The non-2xx reclassification into a typed TwingateApiError
+        # happens explicitly below, preserving the status code and body.
+        all_statuses = list(range(200, 600))
         resp: Response = self.perform_call(
             leaf=GRAPHQL_LEAF,
             method="POST",
             params=None,
             body=encoded_body,
-            exp_status=HTTPStatus.OK,
+            exp_status=all_statuses,
             headers=None,
             context_msg=context_msg,
             aspects=aspects,
         )
+
+        status_code = resp.status_code
+        if not (200 <= status_code < 300):
+            response_text = ""
+            if resp.text is not None:
+                response_text = resp.text
+            api_error = classify_http_status(
+                status_code=status_code,
+                operation=operation_name,
+                response_body=response_text,
+            )
+            raise api_error
 
         try:
             decoded = resp.json()
@@ -329,14 +349,19 @@ class TwingateClient(RestClientBase):
             HONESTY WARNING — Twingate has no flat auth-key mint flow.
             ``tags[0]`` is interpreted as a connector NAME; it is resolved
             against ``connectors.list()`` and the resolved id is passed to
-            ``connectorGenerateTokens``. ``reusable``, ``ephemeral`` and
-            ``ttl_seconds`` are accepted for protocol conformance but NOT
-            honoured — Twingate connector tokens have a provider-fixed
-            lifetime. Supplying more than one tag is rejected because a
-            connector token is scoped to exactly one connector.
+            ``connectorGenerateTokens``. Twingate connector tokens carry no
+            per-token reusable/ephemeral semantics, so ``reusable=True`` or
+            ``ephemeral=True`` is rejected with :class:`SemanticError`
+            BEFORE any network call. ``ttl_seconds`` is accepted for
+            protocol conformance but NOT honoured — Twingate connector
+            tokens have a provider-fixed lifetime. Supplying more than one
+            tag is rejected because a connector token is scoped to exactly
+            one connector.
 
-            :param reusable: Accepted for protocol conformance; unused.
-            :param ephemeral: Accepted for protocol conformance; unused.
+            :param reusable: Must be ``False``; Twingate has no per-token
+                reusable semantics.
+            :param ephemeral: Must be ``False``; Twingate has no per-token
+                ephemeral semantics.
             :param tags: Connector identity. ``tags[0]`` is the connector
                 name; exactly one tag is required.
             :param ttl_seconds: Accepted for protocol conformance; unused.
@@ -345,11 +370,31 @@ class TwingateClient(RestClientBase):
             :returns: The combined ``"<accessToken>:<refreshToken>"``
                 string.
 
-            :raises: :class:`SemanticError` when ``tags`` is empty or holds
-                more than one entry.
+            :raises: :class:`SemanticError` when ``tags`` is empty, holds
+                more than one entry, or when ``reusable`` or ``ephemeral``
+                is truthy — Twingate connector tokens carry no per-token
+                reusable/ephemeral semantics.
             :raises: :class:`VPNControlPlaneAuthKeyError` when the connector
                 name does not resolve.
         """
+        if reusable:
+            err_msg_lines = [
+                "Twingate mint_authkey does not support reusable tokens.",
+                "Twingate connector tokens have no per-token reusable "
+                "semantics — pass reusable=False.",
+            ]
+            err_msg = os.linesep.join(err_msg_lines)
+            raise SemanticError(err_msg)
+
+        if ephemeral:
+            err_msg_lines = [
+                "Twingate mint_authkey does not support ephemeral tokens.",
+                "Twingate connector tokens have no per-token ephemeral "
+                "semantics — pass ephemeral=False.",
+            ]
+            err_msg = os.linesep.join(err_msg_lines)
+            raise SemanticError(err_msg)
+
         if tags is None or len(tags) == 0:
             err_msg_lines = [
                 "Twingate mint_authkey requires a connector identity.",
