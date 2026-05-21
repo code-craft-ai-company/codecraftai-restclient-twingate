@@ -151,7 +151,17 @@ def make_client(*, scripted_payloads: List[Any],
         :returns: A :class:`TwingateClient` ready for offline testing.
     """
     client = TwingateClient(credential=make_credential())
-    client._session = FakeSession(scripted_payloads=scripted_payloads,
-                                  status_code=status_code)
+    session = FakeSession(scripted_payloads=scripted_payloads,
+                          status_code=status_code)
+
+    # The client performs a transparent re-authentication on a 401. Stub
+    # authenticate() so the offline FakeSession is re-bound rather than a
+    # real network Session being constructed.
+    def fake_authenticate() -> None:
+        client._session = session
+        return None
+
+    client.authenticate = fake_authenticate
+    client._session = session
     rtnval = client
     return rtnval

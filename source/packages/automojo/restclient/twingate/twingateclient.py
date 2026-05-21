@@ -234,6 +234,11 @@ class TwingateClient(RestClientBase):
                 HTTP response.
             :raises: :class:`VPNControlPlaneQueryError` when the response
                 body is not valid JSON.
+
+            A single transparent re-authentication is attempted when the
+            API rejects the call with HTTP 401 (an expired token). The
+            session is re-established and the call retried exactly once; a
+            second 401 surfaces as a :class:`TwingateAuthError`.
         """
         payload_dict = body.as_payload()
         encoded_body = json.dumps(payload_dict).encode("utf-8")
@@ -247,6 +252,7 @@ class TwingateClient(RestClientBase):
         # error. The non-2xx reclassification into a typed TwingateApiError
         # happens explicitly below, preserving the status code and body.
         all_statuses = list(range(200, 600))
+
         resp: Response = self.perform_call(
             leaf=GRAPHQL_LEAF,
             method="POST",
@@ -257,6 +263,21 @@ class TwingateClient(RestClientBase):
             context_msg=context_msg,
             aspects=aspects,
         )
+
+        # Mint-once-retry: an expired token yields a 401. Re-establish the
+        # session and retry exactly once before surfacing the auth error.
+        if resp.status_code == 401:
+            self.authenticate()
+            resp = self.perform_call(
+                leaf=GRAPHQL_LEAF,
+                method="POST",
+                params=None,
+                body=encoded_body,
+                exp_status=all_statuses,
+                headers=None,
+                context_msg=context_msg,
+                aspects=aspects,
+            )
 
         status_code = resp.status_code
         if not (200 <= status_code < 300):
