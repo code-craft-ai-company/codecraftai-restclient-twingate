@@ -3,10 +3,10 @@
 ## Introduction
 
 The `twingate-restclient` feature is the public face of the
-`automojo-restclient-twingate` package: a `RestClientBase` subclass that POSTs
+`codecraftai-restclient-twingate` package: a `RestClientBase` subclass that POSTs
 GraphQL queries and mutations to the Twingate Admin API. The package consumes the
 generated builders + DTOs from `twingate-schema-import`. It implements the
-`IVPNControlPlane` Protocol from `automojo-interfaces` so consumers can substitute
+`IVPNControlPlane` Protocol from `codecraftai-interfaces` so consumers can substitute
 it transparently, with the asymmetry that Twingate's RBAC model is not flat-ACL —
 `apply_acl(...)` performs an idempotent three-phase translation.
 

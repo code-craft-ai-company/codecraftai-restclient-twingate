@@ -1,8 +1,8 @@
 =====================================
-Automation Mojo RestClient - Twingate
+Code Craft AI RestClient - Twingate
 =====================================
 
-The ``automojo-restclient-twingate`` package is a typed, aspect-driven client for the Twingate Admin API. Despite the ``restclient-`` prefix, the upstream API is **GraphQL**, not REST — Twingate publishes a single GraphQL endpoint at ``https://<your-network>.twingate.com/api/graphql/v1``. The package consumes ``automojo-restclient-base`` for HTTP transport (POST, session management, auth header plumbing, aspects-driven retry/timeout) and layers GraphQL query and mutation construction on top.
+The ``codecraftai-restclient-twingate`` package is a typed, aspect-driven client for the Twingate Admin API. Despite the ``restclient-`` prefix, the upstream API is **GraphQL**, not REST — Twingate publishes a single GraphQL endpoint at ``https://<your-network>.twingate.com/api/graphql/v1``. The package consumes ``codecraftai-restclient-base`` for HTTP transport (POST, session management, auth header plumbing, aspects-driven retry/timeout) and layers GraphQL query and mutation construction on top.
 
 The package is implemented as of Milestone M3b of the VPN/cloud-provisioning plan. See the ``specs/`` folder for the Kiro-style requirements, design, and task documentation that drives that work.
 
@@ -14,7 +14,7 @@ Highlights
 - Typed query and mutation builders under ``queries/`` and ``mutations/``, INPUT_OBJECT types under ``inputs/``, and ``SchemaObject`` DTOs under ``model/``.
 - Bearer auth from ``TwingateServiceAccountCredential``; endpoint URL derived from the credential's network slug.
 - Connector-name → connector-id resolution for ``mint_authkey`` so callers can pass tag-shaped inputs and have them work against Twingate's id-keyed surface.
-- Replaces the M3-landed ``automojo-interop/vpn/twingate/twingatecontrolplane.py``, which becomes a re-export shim for one release cycle after this package ships.
+- Replaces the M3-landed ``codecraftai-interop/vpn/twingate/twingatecontrolplane.py``, which becomes a re-export shim for one release cycle after this package ships.
 
 Schema Regeneration
 ===================
@@ -23,18 +23,18 @@ The typed builders and DTOs are **hand-authored** from the documented Twingate G
 
 .. code-block:: bash
 
-   python -m automojo.restclient.twingate._codegen.import_schema \
+   python -m ccai.restclient.twingate._codegen.import_schema \
        --network <slug> --token <api-token>
 
-This rewrites ``source/packages/automojo/restclient/twingate/_spec/schema.json`` and ``_spec/schema.sha256``. The emitter in ``_codegen/emitter.py`` can then validate or extend the hand-authored ``model/`` / ``inputs/`` modules. On a non-200 response or GraphQL ``errors`` the importer raises ``ConfigurationError`` and leaves the checked-in schema untouched.
+This rewrites ``source/packages/ccai/restclient/twingate/_spec/schema.json`` and ``_spec/schema.sha256``. The emitter in ``_codegen/emitter.py`` can then validate or extend the hand-authored ``model/`` / ``inputs/`` modules. On a non-200 response or GraphQL ``errors`` the importer raises ``ConfigurationError`` and leaves the checked-in schema untouched.
 
 Repository Structure
 ====================
 
 - ``development/`` - Runtime environment scripts.
 - ``repository-setup/`` - Repository homing and setup scripts.
-- ``source/packages/automojo/restclient/twingate/`` - Package source code (lands in M3b).
-- ``source/testroots/testbase/automojo/tests/restclient/twingate/`` - TestBase test roots (lands in M3b).
+- ``source/packages/ccai/restclient/twingate/`` - Package source code (lands in M3b).
+- ``source/testroots/testbase/ccai/tests/restclient/twingate/`` - TestBase test roots (lands in M3b).
 - ``specs/`` - Requirements, design, and task documentation (Kiro-style).
 - ``userguide/`` - Standards, conventions, and documentation.
 

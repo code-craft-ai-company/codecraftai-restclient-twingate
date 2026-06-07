@@ -11,7 +11,7 @@
 """
 
 __author__ = "Myron Walker"
-__copyright__ = "Copyright 2026, Automation Mojo LLC"
+__copyright__ = "Copyright 2026, Code Craft AI LLC"
 __credits__ = []
 
 
@@ -20,12 +20,12 @@ import unittest
 
 from typing import Any, List
 
-from automojo.restclient.twingate.exceptions import TwingateAuthError
+from ccai.restclient.twingate.exceptions import TwingateAuthError
 
-from automojo.tests.restclient.twingate.twingatetestsupport import (
+from ccai.tests.restclient.twingate.twingatetestsupport import (
     FakeResponse, make_credential, no_pause_aspects
 )
-from automojo.restclient.twingate.twingateclient import TwingateClient
+from ccai.restclient.twingate.twingateclient import TwingateClient
 
 
 class StatusScriptedSession:

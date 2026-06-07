@@ -3,7 +3,7 @@
 ## Overview
 
 `twingate-schema-import` is a maintainer-facing import script plus generated output.
-The script lives at `source/packages/automojo/restclient/twingate/_codegen/import_schema.py`
+The script lives at `source/packages/ccai/restclient/twingate/_codegen/import_schema.py`
 and is invoked by hand against a real Twingate network when the upstream schema
 changes.
 
@@ -14,7 +14,7 @@ Generated output is **checked in**. CI does not regenerate.
 ```
 ┌───────────────────────────────────────────────────────────────────┐
 │ Maintainer                                                         │
-│   $ python -m automojo.restclient.twingate._codegen.import_schema \│
+│   $ python -m ccai.restclient.twingate._codegen.import_schema \│
 │       --network <slug> --token <api-token>                         │
 │                                                                    │
 │   ┌──────────────────────────────────────────────────────────┐    │
@@ -56,7 +56,7 @@ typed and safe.
 ## Module Layout
 
 ```
-source/packages/automojo/restclient/twingate/
+source/packages/ccai/restclient/twingate/
   _spec/
     schema.json
     schema.sha256
@@ -92,7 +92,7 @@ source/packages/automojo/restclient/twingate/
 ## See Also
 
 - [twingate-restclient](../twingate-restclient/design.md)
-- `automojo-restclient-base` — `SchemaObject`, `SchemaField`
+- `codecraftai-restclient-base` — `SchemaObject`, `SchemaField`
 
 ## Testing Strategy
 

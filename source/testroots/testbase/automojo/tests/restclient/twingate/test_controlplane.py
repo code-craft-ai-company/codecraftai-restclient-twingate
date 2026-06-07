@@ -11,13 +11,13 @@ import unittest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from automojo.errors.exceptions import SemanticError
-from automojo.interfaces.ivpncontrolplane import VPNDeviceRecord
+from ccai.errors.exceptions import SemanticError
+from ccai.interfaces.ivpncontrolplane import VPNDeviceRecord
 
-from automojo.restclient.twingate.exceptions import VPNControlPlaneAuthKeyError
-from automojo.restclient.twingate.model.twingatedevice import TwingateDevice
+from ccai.restclient.twingate.exceptions import VPNControlPlaneAuthKeyError
+from ccai.restclient.twingate.model.twingatedevice import TwingateDevice
 
-from automojo.tests.restclient.twingate.twingatetestsupport import (
+from ccai.tests.restclient.twingate.twingatetestsupport import (
     make_client, no_pause_aspects
 )
 
