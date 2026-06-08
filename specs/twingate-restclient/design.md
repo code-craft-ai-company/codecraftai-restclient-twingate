@@ -7,8 +7,8 @@ single endpoint. The endpoint URL is derived from the credential's network slug
 (`https://<slug>.twingate.com/api/graphql/v1`). All requests share auth, headers,
 and aspects via the base.
 
-The client implements `IVPNControlPlane` from `automojo-interfaces`. Once published,
-the M3-landed `automojo-interop/vpn/twingate/twingatecontrolplane.py` reduces to a
+The client implements `IVPNControlPlane` from `codecraftai-interfaces`. Once published,
+the M3-landed `codecraftai-interop/vpn/twingate/twingatecontrolplane.py` reduces to a
 one-line re-export shim emitting `DeprecationWarning` for one release cycle.
 
 ## Architecture
@@ -89,7 +89,7 @@ Adapters translate between the two — kept thin so the boundary is visible.
 ## Module Layout
 
 ```
-source/packages/automojo/restclient/twingate/
+source/packages/ccai/restclient/twingate/
   __init__.py
   twingateclient.py
   aspectstwingate.py
@@ -116,10 +116,10 @@ source/packages/automojo/restclient/twingate/
 ## See Also
 
 - [twingate-schema-import](../twingate-schema-import/design.md)
-- `automojo-interfaces/specs/vpn-control-plane-protocol/`
-- `automojo-restclient-base/specs/restapigroup-enhancements/`
-- `automojo-credentials/specs/twingate-credentials/`
-- Future shim location: `automojo-interop/vpn/twingate/twingatecontrolplane.py` (post-M3b)
+- `codecraftai-interfaces/specs/vpn-control-plane-protocol/`
+- `codecraftai-restclient-base/specs/restapigroup-enhancements/`
+- `codecraftai-credentials/specs/twingate-credentials/`
+- Future shim location: `codecraftai-interop/vpn/twingate/twingatecontrolplane.py` (post-M3b)
 
 ## Testing Strategy
 

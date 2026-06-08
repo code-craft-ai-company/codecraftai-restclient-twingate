@@ -15,19 +15,19 @@ import unittest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from automojo.restclient.twingate.graphqlrequestbody import GraphQLRequestBody
-from automojo.restclient.twingate._codegen.typemap import (
+from ccai.restclient.twingate.graphqlrequestbody import GraphQLRequestBody
+from ccai.restclient.twingate._codegen.typemap import (
     python_type_for_scalar, python_typename_for_scalar
 )
-from automojo.restclient.twingate._codegen.emitter import (
+from ccai.restclient.twingate._codegen.emitter import (
     emit_schema_modules, resolve_type_expression
 )
-from automojo.restclient.twingate import queries, mutations
-from automojo.restclient.twingate.model import (
+from ccai.restclient.twingate import queries, mutations
+from ccai.restclient.twingate.model import (
     TwingateResource, TwingateGroup, TwingateConnector,
     TwingateRemoteNetwork, TwingateDevice, ConnectorState
 )
-from automojo.restclient.twingate.inputs import ResourceProtocolsInput
+from ccai.restclient.twingate.inputs import ResourceProtocolsInput
 
 
 class TestGraphQLRequestBody(unittest.TestCase):

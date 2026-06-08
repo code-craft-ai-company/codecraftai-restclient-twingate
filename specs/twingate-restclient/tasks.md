@@ -48,9 +48,9 @@
 
 ## M3 Shim
 
-- [~] 32. After this package is publishable, edit `automojo-interop/vpn/twingate/twingatecontrolplane.py` to re-export `TwingateClient as TwingateControlPlane` with a `DeprecationWarning` once per import path per process
-  - DEFERRED — out of scope for the M3b `automojo-restclient-twingate`
-    implementation task. The shim edit touches the separate `automojo-interop`
+- [~] 32. After this package is publishable, edit `codecraftai-interop/vpn/twingate/twingatecontrolplane.py` to re-export `TwingateClient as TwingateControlPlane` with a `DeprecationWarning` once per import path per process
+  - DEFERRED — out of scope for the M3b `codecraftai-restclient-twingate`
+    implementation task. The shim edit touches the separate `codecraftai-interop`
     repository; the M3b milestone calls for it as a distinct step performed
     against that repo (IMPLEMENTATION-PLAN §1.18b / M3b). This task left
     untouched here so it is not silently marked complete.

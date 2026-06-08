@@ -9,11 +9,11 @@ import json
 
 from typing import Any, Dict, List
 
-from automojo.credentials.twingateserviceaccountcredential import (
+from ccai.credentials.twingateserviceaccountcredential import (
     TwingateServiceAccountCredential
 )
-from automojo.restclient.twingate.aspectstwingate import AspectsTwingate
-from automojo.restclient.twingate.twingateclient import TwingateClient
+from ccai.restclient.twingate.aspectstwingate import AspectsTwingate
+from ccai.restclient.twingate.twingateclient import TwingateClient
 
 
 def make_credential() -> TwingateServiceAccountCredential:

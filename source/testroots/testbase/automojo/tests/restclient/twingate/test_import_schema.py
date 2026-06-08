@@ -12,9 +12,9 @@ import unittest
 
 import requests_mock
 
-from automojo.errors.exceptions import ConfigurationError
+from ccai.errors.exceptions import ConfigurationError
 
-from automojo.restclient.twingate._codegen.import_schema import (
+from ccai.restclient.twingate._codegen.import_schema import (
     introspect, INTROSPECTION_QUERY
 )
 

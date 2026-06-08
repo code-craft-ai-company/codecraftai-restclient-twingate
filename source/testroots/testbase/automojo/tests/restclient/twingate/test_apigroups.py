@@ -9,23 +9,23 @@
 import json
 import unittest
 
-from automojo.errors.exceptions import ConfigurationError
-from automojo.credentials.basiccredential import BasicCredential
-from automojo.interfaces.ivpncontrolplane import IVPNControlPlane
+from ccai.errors.exceptions import ConfigurationError
+from ccai.credentials.basiccredential import BasicCredential
+from ccai.interfaces.ivpncontrolplane import IVPNControlPlane
 
-from automojo.restclient.twingate.twingateclient import (
+from ccai.restclient.twingate.twingateclient import (
     TwingateClient, GRAPHQL_LEAF
 )
-from automojo.restclient.twingate.exceptions import (
+from ccai.restclient.twingate.exceptions import (
     TwingateApiError, TwingateAuthError, TwingateNotFoundError,
     TwingateRateLimitError, TwingateServerError
 )
-from automojo.restclient.twingate.model import (
+from ccai.restclient.twingate.model import (
     TwingateResource, TwingateGroup, TwingateConnector,
     TwingateRemoteNetwork, TwingateDevice
 )
 
-from automojo.tests.restclient.twingate.twingatetestsupport import (
+from ccai.tests.restclient.twingate.twingatetestsupport import (
     make_client, make_credential, no_pause_aspects
 )
 

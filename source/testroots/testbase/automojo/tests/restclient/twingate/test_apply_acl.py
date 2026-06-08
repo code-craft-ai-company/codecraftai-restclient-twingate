@@ -14,18 +14,18 @@ import unittest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from automojo.errors.exceptions import SemanticError
+from ccai.errors.exceptions import SemanticError
 
-from automojo.restclient.twingate.acltranslator.parser import (
+from ccai.restclient.twingate.acltranslator.parser import (
     parse_acl_document
 )
-from automojo.restclient.twingate.acltranslator.differ import build_apply_plan
-from automojo.restclient.twingate.twingateclient import TwingateClient
+from ccai.restclient.twingate.acltranslator.differ import build_apply_plan
+from ccai.restclient.twingate.twingateclient import TwingateClient
 
-from automojo.tests.restclient.twingate.twingatetestsupport import (
+from ccai.tests.restclient.twingate.twingatetestsupport import (
     make_credential, no_pause_aspects
 )
-from automojo.tests.restclient.twingate.fakegraphqlserver import (
+from ccai.tests.restclient.twingate.fakegraphqlserver import (
     FakeGraphQLServer
 )
 
@@ -316,10 +316,10 @@ class TestApplyAclProperties(unittest.TestCase):
         desired = parse_acl_document(
             acl_doc=acl_doc, default_remote_network_id="RN1")
 
-        from automojo.restclient.twingate.model.twingateresource import (
+        from ccai.restclient.twingate.model.twingateresource import (
             TwingateResource
         )
-        from automojo.restclient.twingate.model.twingategroup import (
+        from ccai.restclient.twingate.model.twingategroup import (
             TwingateGroup
         )
 

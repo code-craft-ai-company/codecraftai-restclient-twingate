@@ -5,7 +5,7 @@
 The `twingate-schema-import` feature obtains the Twingate GraphQL schema via standard
 GraphQL introspection (since Twingate does not publish an OpenAPI document) and
 converts it into typed Python query/mutation builders and DTOs under
-`source/packages/automojo/restclient/twingate/`.
+`source/packages/ccai/restclient/twingate/`.
 
 The introspection is run against a real Twingate network by the maintainer; the
 checked-in introspection result is the source of truth for what the client can call.
@@ -27,7 +27,7 @@ Twingate network and dumps the schema, so that re-syncing is mechanical.
 1. WHEN the maintainer invokes the import script with a network slug + API token
    THE SYSTEM SHALL POST a GraphQL introspection query to
    `https://<slug>.twingate.com/api/graphql/v1` and save the response under
-   `source/packages/automojo/restclient/twingate/_spec/schema.json`.
+   `source/packages/ccai/restclient/twingate/_spec/schema.json`.
 2. WHEN the upstream response is non-200 or contains GraphQL `errors` THE SYSTEM
    SHALL raise `ConfigurationError` with the network slug, status, and error payload
    and SHALL NOT overwrite the checked-in schema.
