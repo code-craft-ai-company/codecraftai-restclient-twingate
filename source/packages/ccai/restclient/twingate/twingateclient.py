@@ -241,7 +241,11 @@ class TwingateClient(RestClientBase):
             second 401 surfaces as a :class:`TwingateAuthError`.
         """
         payload_dict = body.as_payload()
-        encoded_body = json.dumps(payload_dict).encode("utf-8")
+
+        # NOT serialised here.  RestClientBase hands the body to requests as
+        # `json=body`, which encodes it; pre-encoding to bytes made every
+        # GraphQL call double-encode, and requests cannot JSON-encode bytes.
+        encoded_body = payload_dict
 
         operation_name = body.operation_name
         if operation_name is None:

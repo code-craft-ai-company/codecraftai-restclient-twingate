@@ -137,9 +137,18 @@ class FakeGraphQLServer:
 
             :returns: A :class:`FakeGraphQLResponse`.
         """
-        body = prepared_request.data
+        # The client sends the body as `json=`, so it arrives on `.json`.
+        # Reading `.data` returned requests' empty-list default, which is why
+        # `decoded.get(...)` raised AttributeError on a list.  Bytes are still
+        # decoded, so a caller that pre-encodes is handled rather than
+        # silently mis-read.
+        body = getattr(prepared_request, "json", None)
+        if body is None:
+            body = getattr(prepared_request, "data", None)
         if isinstance(body, (bytes, bytearray)):
             decoded = json.loads(body.decode("utf-8"))
+        elif isinstance(body, str):
+            decoded = json.loads(body)
         else:
             decoded = body
 
