@@ -8,8 +8,8 @@
 
 import unittest
 
-from hypothesis import given, settings
-from hypothesis import strategies as st
+from ccai.testbase.properties import given
+from ccai.testbase.properties import strategies as st
 
 from ccai.errors.exceptions import SemanticError
 from ccai.interfaces.ivpncontrolplane import VPNDeviceRecord
@@ -167,12 +167,11 @@ class TestDeleteDevice(unittest.TestCase):
 
 class TestDeviceAdapterRoundTrip(unittest.TestCase):
 
-    @settings(max_examples=80, deadline=None)
     @given(
         device_id=st.text(min_size=1, max_size=12),
         name=st.text(min_size=1, max_size=16),
         os_name=st.text(min_size=1, max_size=10),
-        last=st.text(min_size=1, max_size=24))
+        last=st.text(min_size=1, max_size=24), constraints={"max_examples": 80})
     def test_twingatedevice_to_vpndevicerecord_preserves_shared(
             self, device_id, name, os_name, last) -> None:
         device = TwingateDevice(

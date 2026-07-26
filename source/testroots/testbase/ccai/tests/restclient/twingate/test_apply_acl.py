@@ -11,8 +11,8 @@
 import copy
 import unittest
 
-from hypothesis import given, settings
-from hypothesis import strategies as st
+from ccai.testbase.properties import given
+from ccai.testbase.properties import strategies as st
 
 from ccai.errors.exceptions import SemanticError
 
@@ -266,8 +266,7 @@ def _build_acl_doc(hosts: list, groups: list) -> dict:
 
 class TestApplyAclProperties(unittest.TestCase):
 
-    @settings(max_examples=60, deadline=None)
-    @given(_acl_strategy())
+    @given(_acl_strategy(), constraints={"max_examples": 60})
     def test_apply_is_idempotent(self, acl_doc: dict) -> None:
         server = FakeGraphQLServer()
         client = _make_acl_client(server)
@@ -280,8 +279,7 @@ class TestApplyAclProperties(unittest.TestCase):
         self.assertEqual(server.mutation_operations, [])
         return
 
-    @settings(max_examples=60, deadline=None)
-    @given(_acl_strategy())
+    @given(_acl_strategy(), constraints={"max_examples": 60})
     def test_apply_is_order_independent(self, acl_doc: dict) -> None:
         # Build a re-ordered variant: reverse hosts, groups, and the
         # dst list inside the single rule.
@@ -307,8 +305,7 @@ class TestApplyAclProperties(unittest.TestCase):
             sorted(server_b.mutation_operations))
         return
 
-    @settings(max_examples=60, deadline=None)
-    @given(_acl_strategy())
+    @given(_acl_strategy(), constraints={"max_examples": 60})
     def test_differ_plan_empty_when_state_matches(
             self, acl_doc: dict) -> None:
         # Parsing the same document twice and diffing the second parse

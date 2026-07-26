@@ -12,8 +12,8 @@
 import json
 import unittest
 
-from hypothesis import given, settings
-from hypothesis import strategies as st
+from ccai.testbase.properties import given
+from ccai.testbase.properties import strategies as st
 
 from ccai.restclient.twingate.graphqlrequestbody import GraphQLRequestBody
 from ccai.restclient.twingate._codegen.typemap import (
@@ -194,32 +194,29 @@ class TestBuilderFixtures(unittest.TestCase):
 
 class TestSchemaImportProperties(unittest.TestCase):
 
-    @settings(max_examples=80, deadline=None)
     @given(st.builds(
         TwingateResource,
         resource_id=st.text(min_size=1, max_size=12),
         name=st.text(min_size=1, max_size=12),
         address=st.text(min_size=1, max_size=20),
-        remote_network_id=st.text(max_size=8)))
+        remote_network_id=st.text(max_size=8)), constraints={"max_examples": 80})
     def test_resource_roundtrip(self, resource: TwingateResource) -> None:
         rebuilt = TwingateResource.from_dict(resource.to_dict())
         self.assertEqual(rebuilt, resource)
         return
 
-    @settings(max_examples=80, deadline=None)
     @given(st.builds(
         TwingateConnector,
         connector_id=st.text(min_size=1, max_size=12),
         name=st.text(min_size=1, max_size=12),
         remote_network_id=st.text(max_size=8),
-        state=st.text(max_size=10)))
+        state=st.text(max_size=10)), constraints={"max_examples": 80})
     def test_connector_roundtrip(self, conn: TwingateConnector) -> None:
         rebuilt = TwingateConnector.from_dict(conn.to_dict())
         self.assertEqual(rebuilt, conn)
         return
 
-    @settings(max_examples=120, deadline=None)
-    @given(st.one_of(st.none(), st.text(min_size=1, max_size=24)))
+    @given(st.one_of(st.none(), st.text(min_size=1, max_size=24)), constraints={"max_examples": 120})
     def test_builder_determinism(self, cursor) -> None:
         first = queries.build_resources(after=cursor)
         second = queries.build_resources(after=cursor)
@@ -231,11 +228,10 @@ class TestSchemaImportProperties(unittest.TestCase):
         self.assertEqual(first_bytes, second_bytes)
         return
 
-    @settings(max_examples=120, deadline=None)
     @given(
         name=st.text(min_size=1, max_size=20),
         address=st.text(min_size=1, max_size=20),
-        rnid=st.one_of(st.none(), st.text(min_size=1, max_size=10)))
+        rnid=st.one_of(st.none(), st.text(min_size=1, max_size=10)), constraints={"max_examples": 120})
     def test_none_kwargs_omitted_from_variables(
             self, name, address, rnid) -> None:
         body = mutations.build_connectorcreate(
