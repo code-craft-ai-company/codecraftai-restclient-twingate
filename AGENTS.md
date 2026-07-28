@@ -92,7 +92,7 @@ This package uses the `unittest` framework. Tests live under
 `source/testroots/testbase/ccai/tests/restclient/twingate/`. All HTTP traffic
 in tests is mocked — no live network calls.
 
-Hypothesis-based property tests are required for: GraphQL body shape correctness for
+Property-based tests (`ccai.testbase.properties`, NOT hypothesis) are required for: GraphQL body shape correctness for
 arbitrary input permutations, paging cursor semantics, and `apply_acl` idempotency
 convergence (the three-phase RBAC apply must reach the same end state regardless of
 input ordering).
@@ -131,3 +131,10 @@ After checkout:
 
 - run `repository-setup/rehome-repository` (creates `.env`)
 - run `development/setup-environment` (creates the venv via Poetry)
+
+Property testing uses `ccai.testbase.properties`, never `hypothesis`. The fleet
+ships its own libraries rather than depending on third-party ones, and
+`hypothesis` was never a declared dependency of this repo — the requirement
+named a package nothing installed. Note that a testbase `@given` cannot run
+under plain `pytest`: it reports the strategy parameters as missing fixtures.
+Run property tests through the testbase runner.
