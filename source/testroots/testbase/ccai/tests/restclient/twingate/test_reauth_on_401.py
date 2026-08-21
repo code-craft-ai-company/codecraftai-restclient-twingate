@@ -16,13 +16,14 @@ __credits__ = []
 
 
 import json
-import unittest
 
 from typing import Any, List
 
+from ccai import testbase
+
 from ccai.restclient.twingate.exceptions import TwingateAuthError
 
-from ccai.tests.restclient.twingate.twingatetestsupport import (
+from .twingatetestsupport import (
     FakeResponse, make_credential, no_pause_aspects
 )
 from ccai.restclient.twingate.twingateclient import TwingateClient
@@ -97,45 +98,44 @@ def _make_client(*, scripted: List[Any]) -> TwingateClient:
     return rtnval
 
 
-class TestReauthOn401(unittest.TestCase):
-
-    def test_401_then_200_retries_once(self) -> None:
-        """
-            A 401 followed by a 200 must yield the 200 payload after
-            exactly one re-auth (two HTTP sends total).
-        """
-        ok_payload = {"data": {"devices": {"edges": [],
-                      "pageInfo": {"hasNextPage": False, "endCursor": None}}}}
-        scripted = [
-            (401, {"errors": [{"message": "token expired"}]}),
-            (200, ok_payload),
-        ]
-        client = _make_client(scripted=scripted)
-
-        devices = client.list_devices(aspects=no_pause_aspects())
-
-        self.assertEqual(devices, [])
-        self.assertEqual(client._session.send_count, 2)
-        return
-
-    def test_persistent_401_raises_auth_error(self) -> None:
-        """
-            Two consecutive 401 responses must surface as a
-            :class:`TwingateAuthError` — the retry is attempted at most
-            once.
-        """
-        scripted = [
-            (401, {"errors": [{"message": "token expired"}]}),
-            (401, {"errors": [{"message": "token expired"}]}),
-        ]
-        client = _make_client(scripted=scripted)
-
-        with self.assertRaises(TwingateAuthError):
-            client.list_devices(aspects=no_pause_aspects())
-
-        self.assertEqual(client._session.send_count, 2)
-        return
+# ----------------------------------------------------------------------
+# TestReauthOn401
+# ----------------------------------------------------------------------
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_401_then_200_retries_once() -> None:
+    """
+        A 401 followed by a 200 must yield the 200 payload after
+        exactly one re-auth (two HTTP sends total).
+    """
+    ok_payload = {"data": {"devices": {"edges": [],
+                  "pageInfo": {"hasNextPage": False, "endCursor": None}}}}
+    scripted = [
+        (401, {"errors": [{"message": "token expired"}]}),
+        (200, ok_payload),
+    ]
+    client = _make_client(scripted=scripted)
+
+    devices = client.list_devices(aspects=no_pause_aspects())
+
+    testbase.assert_equal(devices, [])
+    testbase.assert_equal(client._session.send_count, 2)
+    return
+
+def test_persistent_401_raises_auth_error() -> None:
+    """
+        Two consecutive 401 responses must surface as a
+        :class:`TwingateAuthError` — the retry is attempted at most
+        once.
+    """
+    scripted = [
+        (401, {"errors": [{"message": "token expired"}]}),
+        (401, {"errors": [{"message": "token expired"}]}),
+    ]
+    client = _make_client(scripted=scripted)
+
+    with testbase.raises(TwingateAuthError):
+        client.list_devices(aspects=no_pause_aspects())
+
+    testbase.assert_equal(client._session.send_count, 2)
+    return
