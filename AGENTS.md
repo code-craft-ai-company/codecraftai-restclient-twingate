@@ -68,7 +68,7 @@ builders under `apigroups/` (`resources`, `groups`, `connectors`, `remoteNetwork
 base package.
 
 The client implements the `IVPNControlPlane` Protocol declared in
-`codecraftai-interfaces`. It also implements an idempotent three-phase RBAC apply
+`codecraftai-foundations`. It also implements an idempotent three-phase RBAC apply
 (`apply_acl`) that translates Tailscale-shaped flat-ACL JSON into the resource × group ×
 assignment shape Twingate's API actually exposes — see the matching spec for the
 algorithm details and the honesty warnings on the asymmetry.
