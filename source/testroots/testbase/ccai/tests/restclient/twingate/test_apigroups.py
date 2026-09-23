@@ -6,8 +6,6 @@
     - IVPNControlPlane isinstance conformance
 """
 
-import json
-
 from ccai import testbase
 
 from ccai.errors.exceptions import ConfigurationError
@@ -20,10 +18,6 @@ from ccai.restclient.twingate.twingateclient import (
 from ccai.restclient.twingate.exceptions import (
     TwingateApiError, TwingateAuthError, TwingateNotFoundError,
     TwingateRateLimitError, TwingateServerError
-)
-from ccai.restclient.twingate.model import (
-    TwingateResource, TwingateGroup, TwingateConnector,
-    TwingateRemoteNetwork, TwingateDevice
 )
 
 from .twingatetestsupport import (

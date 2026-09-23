@@ -22,8 +22,9 @@ from ccai.restclient.twingate.aspectstwingate import (
     AspectsTwingate, DEFAULT_TWINGATE_ASPECTS
 )
 from ccai.restclient.twingate.apigroups.graphqlsupport import (
-    require_query_data, require_mutation_result, errors_indicate_not_found,
-    is_not_found_text
+    require_query_data,
+    errors_indicate_not_found,
+    is_not_found_text,
 )
 from ccai.restclient.twingate.exceptions import VPNControlPlaneMutationError
 from ccai.restclient.twingate.model.twingatedevice import TwingateDevice

@@ -13,7 +13,6 @@ __copyright__ = "Copyright 2025, Code Craft AI LLC"
 __credits__ = []
 
 
-import json
 import logging
 import os
 
@@ -21,7 +20,6 @@ from typing import Any, Dict, List, Optional
 
 from requests import Response, Session
 
-from ccai.credentials.basecredential import BaseCredential
 from ccai.credentials.twingateserviceaccountcredential import (
     TwingateServiceAccountCredential
 )
@@ -49,8 +47,9 @@ from ccai.restclient.twingate.acltranslator.executor import (
     execute_apply_plan
 )
 from ccai.restclient.twingate.exceptions import (
-    classify_http_status, VPNControlPlaneACLError,
-    VPNControlPlaneAuthKeyError, VPNControlPlaneQueryError
+    classify_http_status,
+    VPNControlPlaneAuthKeyError,
+    VPNControlPlaneQueryError,
 )
 from ccai.restclient.twingate.graphqlrequestbody import GraphQLRequestBody
 from ccai.restclient.twingate.mutations.build_resourceaccess_mutations import (
@@ -405,8 +404,8 @@ class TwingateClient(RestClientBase):
         if reusable:
             err_msg_lines = [
                 "Twingate mint_authkey does not support reusable tokens.",
-                "Twingate connector tokens have no per-token reusable "
-                "semantics — pass reusable=False.",
+                ("Twingate connector tokens have no per-token reusable "
+                 "semantics — pass reusable=False."),
             ]
             err_msg = os.linesep.join(err_msg_lines)
             raise SemanticError(err_msg)
@@ -414,8 +413,8 @@ class TwingateClient(RestClientBase):
         if ephemeral:
             err_msg_lines = [
                 "Twingate mint_authkey does not support ephemeral tokens.",
-                "Twingate connector tokens have no per-token ephemeral "
-                "semantics — pass ephemeral=False.",
+                ("Twingate connector tokens have no per-token ephemeral "
+                 "semantics — pass ephemeral=False."),
             ]
             err_msg = os.linesep.join(err_msg_lines)
             raise SemanticError(err_msg)
@@ -423,16 +422,16 @@ class TwingateClient(RestClientBase):
         if tags is None or len(tags) == 0:
             err_msg_lines = [
                 "Twingate mint_authkey requires a connector identity.",
-                "The 'tags' parameter must contain exactly one entry (the "
-                "connector name).",
+                ("The 'tags' parameter must contain exactly one entry (the "
+                 "connector name)."),
             ]
             err_msg = os.linesep.join(err_msg_lines)
             raise SemanticError(err_msg)
 
         if len(tags) > 1:
             err_msg_lines = [
-                "Twingate connector tokens are scoped to a single "
-                "connector.",
+                ("Twingate connector tokens are scoped to a single "
+                 "connector."),
                 "The 'tags' parameter must contain exactly one entry.",
                 f"FOUND TAGS: {tags}",
             ]
